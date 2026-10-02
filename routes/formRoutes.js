@@ -11,7 +11,9 @@ const router = express.Router();
 const json = express.json({ limit: "20kb" });
 
 // Order matters: rate limit first (cheapest), then read the body, drop bots, validate, save.
-router.post("/admission-enquiry", formLimiter(), json, honeypot, validateForm("admission"), createEnquiry);
+const admission = [formLimiter(), json, honeypot, validateForm("admission"), createEnquiry];
+router.post("/admission-enquiry", ...admission);
+router.post("/enquiry", ...admission);   // same form, shorter URL used by the admissions popup
 router.post("/contact", formLimiter(), json, honeypot, validateForm("contact"), createMessage);
 router.post("/careers", formLimiter(), uploadResume, honeypot, validateForm("career"), createApplication);
 

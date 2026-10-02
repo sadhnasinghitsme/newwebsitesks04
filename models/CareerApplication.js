@@ -6,9 +6,8 @@ const careerApplicationSchema = new mongoose.Schema(
     phone: { type: String, required: true, match: /^[6-9]\d{9}$/ },
     email: { type: String, required: true, trim: true, lowercase: true, maxlength: 254 },
     position: { type: String, required: true, trim: true, maxlength: 100 },
-    resume: {
+    resume: {               // the file itself is not stored; it is emailed to HR
       originalName: String,
-      storedName: String,   // file name inside uploads/resumes
       size: Number,
     },
     schoolNotified: { type: Boolean, default: false },

@@ -31,8 +31,7 @@ backend/
 ├── routes/formRoutes.js    the three API endpoints and their checks, in order
 ├── controllers/            save the submission, reply, send the emails
 ├── middleware/             CORS, rate limit, spam trap, validation, PDF upload, errors
-├── utils/                  validation rules and email templates
-└── uploads/resumes/        uploaded resumes (never publicly served)
+└── utils/                  validation rules and email templates
 ```
 
 The website side is in `SKS-World-School-GNW-Website/assets/js/main.js` (search for `API_BASE`).
@@ -125,7 +124,7 @@ For example, the website on Netlify / cPanel hosting and the backend on Render o
 3. In the website's `assets/js/main.js`, set `const API_BASE="https://api.skswsgnw.ac.in";` and upload the website again.
 4. Make sure `ALLOWED_ORIGINS` lists the website's exact address(es).
 
-Resumes are saved in `backend/uploads/resumes`. On hosts whose disk is wiped on every deploy (Render free tier, Heroku), add a persistent disk for that folder, or rely on the copy attached to the HR email.
+Resumes are never written to disk: each one is held in memory and sent to HR as an email attachment, so the backend also runs on read-only hosts such as Vercel. The email is the only copy of a resume, so make sure the SMTP settings work.
 
 ### MongoDB Atlas (free database in the cloud)
 
@@ -142,7 +141,7 @@ Resumes are saved in `backend/uploads/resumes`. On hosts whose disk is wiped on 
 - **Honeypot**: every form has a hidden `website` field that people never see. Bots that fill it get a fake "thank you" and nothing is saved or emailed.
 - **CORS**: only the domains in `ALLOWED_ORIGINS` (and the server itself) can submit; other sites get `403`.
 - **Validation on the server** for every field, even though the website checks them too.
-- **Resume uploads**: PDF only (file type, `.pdf` extension *and* the file's actual content are checked), max 2 MB, saved under a random name, never served publicly. Rejected files are deleted immediately.
+- **Resume uploads**: PDF only (file type, `.pdf` extension *and* the file's actual content are checked), max 2 MB, kept in memory only and emailed to HR, never stored or served publicly.
 - **Security headers** on the API (`helmet`), request size limits, and all visitor input is escaped in emails.
 - Emails are sent after the visitor gets their reply, so a slow or failing mail server never loses a submission. Each saved record shows whether the school alert and thank-you email went out (`schoolNotified`, `userNotified`).
 

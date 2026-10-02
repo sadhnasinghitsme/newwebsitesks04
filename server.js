@@ -19,7 +19,6 @@ app.use("/api", helmet(), corsForApi, formRoutes);
 app.use("/api", notFound);
 
 // Optional: serve the website itself, so the site and its forms run from one address.
-// The uploads folder is never served.
 if (env.staticDir) {
   app.use(express.static(path.resolve(__dirname, env.staticDir), { extensions: ["html"] }));
 }

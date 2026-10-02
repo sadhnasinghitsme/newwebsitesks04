@@ -9,14 +9,14 @@ async function createApplication(req, res) {
   const originalName = (file.originalname.replace(/[^\w.\- ()]/g, "_").slice(-100)) || "resume.pdf";
   let doc;
   try {
-    doc = await CareerApplication.create({ ...req.clean, resume: { originalName, storedName: file.filename, size: file.size } });
+    doc = await CareerApplication.create({ ...req.clean, resume: { originalName, size: file.size } });
   } catch (err) {
     removeUpload(req);
     throw err;
   }
 
   res.status(201).json({ ok: true, message: `Thank you, ${doc.name}. HR will contact you if your profile matches an opening.` });
-  notify(doc, "career", { to: env.mail.careersTo, attachments: [{ filename: originalName, path: file.path, contentType: "application/pdf" }] });
+  notify(doc, "career", { to: env.mail.careersTo, attachments: [{ filename: originalName, content: file.buffer, contentType: "application/pdf" }] });
 }
 
 module.exports = { createApplication };

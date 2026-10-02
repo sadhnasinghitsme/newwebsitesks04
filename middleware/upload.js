@@ -1,17 +1,11 @@
-const fs = require("fs");
 const path = require("path");
-const crypto = require("crypto");
 const multer = require("multer");
 
-const RESUME_DIR = path.join(__dirname, "..", "uploads", "resumes");
 const MAX_BYTES = 2 * 1024 * 1024;
-fs.mkdirSync(RESUME_DIR, { recursive: true });
 
-const storage = multer.diskStorage({
-  destination: RESUME_DIR,
-  // Random file name: the uploader's file name is never used on disk.
-  filename: (req, file, cb) => cb(null, `${Date.now()}-${crypto.randomBytes(8).toString("hex")}.pdf`),
-});
+// Resumes are kept in memory only (req.file.buffer) and sent to HR as an email attachment.
+// Nothing is written to disk, so this also works on read-only hosts such as Vercel.
+const storage = multer.memoryStorage();
 
 const resumeUpload = multer({
   storage,
@@ -23,8 +17,9 @@ const resumeUpload = multer({
   },
 }).single("resume");
 
+// Drops a rejected upload's data. With memory storage there is no file to delete.
 function removeUpload(req) {
-  if (req.file?.path) fs.unlink(req.file.path, () => {});
+  if (req.file) req.file.buffer = null;
 }
 
 const fail = (res, message) => res.status(400).json({ ok: false, message, errors: { resume: message } });
@@ -41,11 +36,7 @@ function uploadResume(req, res, next) {
       return next(err);
     }
     if (!req.file) return fail(res, "Please attach your resume (PDF, max 2 MB).");
-    const head = Buffer.alloc(5);
-    const fd = fs.openSync(req.file.path, "r");
-    fs.readSync(fd, head, 0, 5, 0);
-    fs.closeSync(fd);
-    if (head.toString("latin1") !== "%PDF-") {
+    if (req.file.buffer.subarray(0, 5).toString("latin1") !== "%PDF-") {
       removeUpload(req);
       return fail(res, "This file is not a valid PDF. Please upload your resume as a PDF.");
     }
@@ -53,4 +44,4 @@ function uploadResume(req, res, next) {
   });
 }
 
-module.exports = { uploadResume, removeUpload, RESUME_DIR };
+module.exports = { uploadResume, removeUpload };
