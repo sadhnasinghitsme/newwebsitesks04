@@ -7,6 +7,7 @@ Node.js + Express + MongoDB backend for the website's three forms:
 | Admission Enquiry | Popup on every page ("Apply Now", "Enquire Now") and the form on `contact.html` | `POST /api/admission-enquiry` |
 | Contact Us | "Send Us a Message" on `contact.html` | `POST /api/contact` |
 | Careers | "Apply Now" on `careers.html` (with PDF resume) | `POST /api/careers` |
+| Alumni Registration | "Alumni Registration" on `alumni.html` | `POST /api/alumni` |
 
 For every submission the server:
 
@@ -17,7 +18,7 @@ For every submission the server:
 5. emails the school all the details (with the resume attached for job applications), and sends the visitor a thank-you email if they gave an email address
 
 There is no admin panel or login. To read submissions, use the emails, or open the database in
-[MongoDB Compass](https://www.mongodb.com/products/compass) (free): collections `admissionenquiries`, `contactmessages`, `careerapplications`.
+[MongoDB Compass](https://www.mongodb.com/products/compass) (free): collections `admissionenquiries`, `contactmessages`, `careerapplications`, `alumniregistrations`.
 
 ---
 
@@ -154,6 +155,7 @@ All endpoints answer with JSON: `{ "ok": true, "message": "..." }` on success (`
 | `POST /api/admission-enquiry` | JSON | `parent`*, `phone`*, `email`, `grade`*, `message`, `source` (`popup` / `contact-page`) |
 | `POST /api/contact` | JSON | `name`*, `phone`*, `email`*, `subject`*, `message`* |
 | `POST /api/careers` | multipart/form-data | `name`*, `phone`*, `email`*, `position`*, `resume`* (PDF file) |
+| `POST /api/alumni` | JSON | `name`*, `batch`* (year of passing out), `phone`*, `email`*, `occupation`, `message` |
 | `GET /api/health` | — | server and database status |
 
 \* required. Every form also sends the hidden `website` field (must be empty).

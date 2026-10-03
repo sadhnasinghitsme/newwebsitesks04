@@ -48,6 +48,13 @@ const templates = {
       user: { subject: "Application received – SKS World School", ...thankYou(doc.name, `Thank you for applying for the post of ${doc.position} at SKS World School. Our HR team will review your application and contact you if your profile matches an opening.`) },
     };
   },
+  alumni(doc) {
+    const rows = [["Name", doc.name], ["Batch (year of passing out)", doc.batch], ["Phone", phoneFmt(doc.phone)], ["Email", doc.email], ["Occupation / college", doc.occupation], ["Message", doc.message]];
+    return {
+      school: { subject: `New alumni registration: ${oneLine(doc.name)} (batch of ${doc.batch})`, html: table("New Alumni Registration", rows, doc.createdAt), text: text("New Alumni Registration", rows, doc.createdAt), replyTo: doc.email },
+      user: { subject: "Welcome to the SKS alumni network – SKS World School", ...thankYou(doc.name, `Thank you for registering with the SKS World School alumni network. We will keep you posted about alumni meets and school events.`) },
+    };
+  },
 };
 
 module.exports = templates;

@@ -29,6 +29,10 @@ const rules = {
     if (!s) return required ? [null, "Please enter your email address."] : [undefined];
     return s.length <= 254 && EMAIL_RE.test(s) ? [s] : [null, "Please enter a valid email address."];
   },
+  year: ({ label, min = 1950 }) => v => {
+    const s = str(String(v ?? "")), y = Number(s);
+    return /^\d{4}$/.test(s) && y >= min && y <= new Date().getFullYear() ? [y] : [null, `Please enter ${label}.`];
+  },
 };
 
 function validate(schema, body = {}) {
@@ -62,6 +66,14 @@ const schemas = {
     phone: rules.phone(),
     email: rules.email(),
     position: rules.text({ label: "the post you are applying for", min: 1 }),
+  },
+  alumni: {
+    name: rules.text({ label: "your full name" }),
+    batch: rules.year({ label: "a valid year of passing out, e.g. 2020" }),
+    phone: rules.phone(),
+    email: rules.email(),
+    occupation: rules.text({ label: "your occupation or college", required: false, max: 150 }),
+    message: rules.text({ label: "a message", required: false, min: 1, max: 2000 }),
   },
 };
 
